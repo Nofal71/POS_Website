@@ -1,16 +1,10 @@
-import Alert from "./Components/common/Alert"
-import Modal from "./Components/common/Modal"
-import Header from "./Sections/Header"
-import Main from "./Sections/Main"
+import MainRoutes from "./Routes/MainRoutes"
 
 function App() {
 
   return (
     <>
-      <Modal />
-      <Alert />
-      <Header />
-      <Main />
+      <MainRoutes />
     </>
   )
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import Navbar from '../Components/NavBar'
-import Hero from '../Components/Hero'
+import Navbar from '../../Components/NavBar';
+import Hero from '../../Components/Hero';
+
 
 const Header = () => {
 
