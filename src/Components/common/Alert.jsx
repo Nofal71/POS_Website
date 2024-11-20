@@ -7,7 +7,6 @@ const Alert = () => {
     useEffect(() => {
         let timer;
         if (openAlert) {
-            console.log(Alert.type)
             timer = setTimeout(() => closeAlert(), 5000);
         }
         return () => clearTimeout(timer);

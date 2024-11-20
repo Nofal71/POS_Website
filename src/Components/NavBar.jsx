@@ -1,16 +1,35 @@
+import React, { useEffect, useState } from 'react'
 import { ShoppingCart } from "@mui/icons-material";
 import { Badge } from "@mui/material";
 import { motion } from "framer-motion";
 
 
-const Navbar = ({ bg }) => {
+const Navbar = () => {
+
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    const handleScroll = () => {
+        if (window.scrollY > 0) {
+            setIsScrolled(true);
+        } else {
+            setIsScrolled(false);
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
     return (
         <>
             <motion.div
                 initial={{ y: -400 }}
                 animate={{ y: 0 }}
-                transition={{ duration: 1 }}
-                className={`sticky navbar top-0 right-0 left-0 p-5 ${bg === 'white' ? 'bg-theme-light' : 'bg-sky-400'} z-40 text-black items-center`}>
+                transition={{ duration: 1  }}
+                className={`sticky navbar top-0 right-0 left-0 p-5 ${isScrolled ? 'bg-theme-light' : 'bg-sky-400'} z-40 text-black items-center`}>
                 <div className="navbar-start">
 
                     <div className="dropdown sm:hidden">
