@@ -1,47 +1,60 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Quote from '../../Components/Quote'
 import ProductCard_2 from '../../Components/ProductCard_2'
 import useFetch from '../../Hooks/useFetch'
 import ProductsCarousel from '../../Components/ProductsCarousel'
 import useFeedback from '../../Hooks/useFeedback'
+import { useNavigate } from 'react-router'
 
 const Main = () => {
+    const navigator = useNavigate()
     const { response, isFetching } = useFetch({ URL: 'http://localhost:3000/products' });
     const { Modal, Alert } = useFeedback()
     const [products, setProducts] = useState([])
     const [searchKeyword, setSearchKeywords] = useState([])
+    const [searchedData, setSeachedData] = useState([])
+    const inputRef = useRef(null)
 
-    const sort = (e) => {
-        const value = e.target.value;
-        const updatedProducts = [...products];
 
-        if (value === 'price-asc') {
-            updatedProducts.sort((a, b) => a.price - b.price);
-        } else if (value === 'price-desc') {
-            updatedProducts.sort((a, b) => b.price - a.price);
-        }
-        // Top Offers
-        // Free Shipments
-        // Sale
-        // etc.....
-
-        value !== 'none' ? setProducts(updatedProducts) : setProducts(response);
-    };
-
-    const handleSearch = (e) => {
+    const handleSearchChange = (e) => {
         const searchedValue = e.target.value.toLowerCase()
         if (searchedValue.length === 0) {
             setSearchKeywords([])
             return
         }
 
-        const nameData = !isFetching && response.filter(e => e.name.toLowerCase().includes(searchedValue))
-        const desData = !isFetching && response.filter(e => e.description.toLowerCase().includes(searchedValue))
+        const searchResults = response.filter(
+            (item) =>
+                item.name.toLowerCase().includes(searchedValue) ||
+                item.description.toLowerCase().includes(searchedValue)
+        );
+        const uniqueKeywords = Array.from(
+            new Map(
+                searchResults.map((item) => [item.name.toLowerCase(), item])
+            ).values()
+        );
 
-        setSearchKeywords([...nameData, ...desData])
+        setSearchKeywords(uniqueKeywords)
+        setSeachedData(searchResults)
 
     }
 
+    const handleSearch = (e) => {
+        if (typeof e === 'string') {
+            const searchResults = response.filter(
+                (item) =>
+                    item.name.toLowerCase().includes(e.toLowerCase()) ||
+                    item.description.toLowerCase().includes(e.toLowerCase())
+            );
+
+            navigator('/search', { state: { stateValue: searchResults, inputRef: inputRef.current?.value } })
+        } else {
+            searchedData.length > 0 ? navigator('/search', { state: { stateValue: searchedData, inputRef: inputRef.current?.value } }) : Alert('No Data Found', 'alert-info')
+        }
+
+        inputRef.current.value = ''
+        setSearchKeywords([])
+    }
 
     useEffect(() => {
         !isFetching && setProducts(response)
@@ -81,18 +94,21 @@ const Main = () => {
                         className="input mx-auto input-bordered flex items-center gap-2 w-full"
                     >
                         <input
+                            ref={inputRef}
                             id="search-input"
                             type="text"
                             className="grow"
                             placeholder="Search"
                             aria-controls="search-tooltip"
-                            onChange={handleSearch}
+                            onChange={handleSearchChange}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                         />
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 16 16"
                             fill="currentColor"
                             className="h-4 w-4 opacity-70 cursor-pointer"
+                            onClick={handleSearch}
                         >
                             <path
                                 fillRule="evenodd"
@@ -109,21 +125,12 @@ const Main = () => {
                                 className="absolute top-full mt-2 bg-white shadow-md rounded-md w-full p-2 z-10"
                             >
                                 {searchKeyword && searchKeyword.map((e, i) => (
-                                    <h1 className='hover:bg-gray-100 hover:cursor-pointer px-2 py-3' key={i}>{e.name}</h1>
+                                    <h1 onClick={() => handleSearch(e.name)} className='hover:bg-gray-100 hover:cursor-pointer px-2 py-3' key={i}>{e.name}</h1>
                                 ))}
                             </div>
                         )
                     }
                 </div>
-
-
-                <select onChange={sort} className='select select-bordered max-w-sm'>
-                    <option disabled selected>Sort</option>
-                    <option value="none">None</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                </select>
-
             </div>
 
             {/* <button onClick={() => Modal({
@@ -134,7 +141,7 @@ const Main = () => {
             })} >Open Modal</button> */}
 
 
-            <div className='flex flex-row flex-wrap gap-4 mt-20 justify-between'>
+            <div className='flex flex-row flex-wrap gap-4 mt-20 justify-center'>
                 {
                     isFetching ? (
                         <span className="loading loading-spinner loading-xs"></span>
