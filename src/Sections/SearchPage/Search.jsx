@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion'
 import { useLocation } from 'react-router';
 import ProductCard_2 from '../../Components/ProductCard_2';
 import useFetch from '../../Hooks/useFetch';
@@ -6,49 +7,46 @@ import useFeedback from '../../Hooks/useFeedback';
 
 const Search = () => {
   const location = useLocation();
-  const { response, isFetching } = useFetch({ URL: 'http://localhost:3000/products' });
+  const { makeRequest, isFetching } = useFetch();
   const searchedData = location.state?.stateValue;
   const defaultKeyWord = location.state?.inputRef;
   const [searchKeyword, setSearchKeywords] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const inputRef = useRef(null);
-  const {Alert} = useFeedback()
+  const productsRef = useRef()
+  const { Alert } = useFeedback()
 
-  const handleSearchChange = (e) => {
+
+  const handleSearchChange = async (e) => {
     const searchedValue = e.target.value.toLowerCase();
     if (searchedValue.length === 0) {
       setSearchKeywords([]);
       return;
     }
-
-    const searchResults = !isFetching && response?.filter(
+    const res = await makeRequest('GET', 'products')
+    const searchResults = !isFetching && res?.filter(
       (item) =>
         item.name.toLowerCase().includes(searchedValue) ||
         item.description.toLowerCase().includes(searchedValue)
     );
-
     const uniqueKeywords = Array.from(
       new Set(searchResults.map((item) => item.name.toLowerCase()))
     );
-
     setSearchKeywords(uniqueKeywords);
   };
 
-  const handleSearch = (searchTerm) => {
+
+  const handleSearch = async (searchTerm) => {
     if (typeof searchTerm === 'string') {
-      const searchResults = !isFetching && response.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.description.toLowerCase().includes(searchTerm.toLowerCase())
+      const res = await makeRequest('GET', 'products')
+      const searchResults = !isFetching && res.filter((item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      !searchResults.length > 0 && Alert('No Such Product Found' , 'alert-info')
+      !searchResults.length > 0 && Alert('No Such Product Found', 'alert-info')
       setFilteredProducts(searchResults);
+      // inputRef.current.value = searchResults[0].name.toLowerCase()
     }
-
-    if (inputRef?.current) {
-      inputRef.current.value = '';
-    }
-
     setSearchKeywords([]);
   };
 
@@ -65,21 +63,23 @@ const Search = () => {
     // Free Shipments
     // Sale
     // etc.....
-
     value !== 'none' ? setFilteredProducts(updatedProducts) : setFilteredProducts(filteredProducts);
   };
 
 
   useEffect(() => {
+    window.scrollTo({ top: productsRef, behavior: 'instant' })
     if (inputRef) {
       inputRef.current.value = defaultKeyWord
     }
     setFilteredProducts(searchedData || []);
   }, [searchedData, inputRef]);
 
+
+
   return (
     <>
-      <div className="relative w-1/2 p-5 mx-auto">
+      <div className="relative w-1/2 p-5 pb-0 mx-auto">
         <label
           htmlFor="search-input"
           className="input mx-auto input-bordered flex items-center gap-2 w-full"
@@ -115,36 +115,46 @@ const Search = () => {
             role="tooltip"
             className="absolute top-full mt-2 bg-white shadow-md rounded-md w-full p-2 z-10"
           >
-            {searchKeyword.map((name, i) => (
-              <h1
-                onClick={() => handleSearch(name)}
-                className="hover:bg-gray-100 hover:cursor-pointer px-2 py-3"
-                key={i}
-              >
-                {name}
-              </h1>
-            ))}
+            <AnimatePresence>
+              {searchKeyword.map((name, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
+                  <h1
+                    onClick={() => handleSearch(name)}
+                    className="hover:bg-gray-100 hover:cursor-pointer px-2 py-3"
+                    key={i}
+                  >
+                    {name}
+                  </h1>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
       </div>
 
-      <div className="p-10">
+      <div className="p-10 flex justify-between items-start flex-row-reverse">
         <select onChange={sort} className='select select-bordered max-w-sm'>
           <option disabled selected>Sort</option>
           <option value="none">None</option>
           <option value="price-asc">Price: Low to High</option>
           <option value="price-desc">Price: High to Low</option>
         </select>
+        {/* <h1 className='text-lg' >Search Results For <b> {inputRef.current?.value || defaultKeyWord} </b> : </h1> */}
       </div>
 
-      <div className='flex flex-row flex-wrap gap-4 mt-20 justify-center mb-20'>
-
+      <div ref={productsRef} className='flex flex-row flex-wrap gap-4 mt-20 justify-center mb-20'>
         {filteredProducts && filteredProducts.length > 0 ? (
           filteredProducts.map((product, index) => (
             <ProductCard_2 product={product} key={index} />
           ))
         ) : isFetching ? (
-          <span className="loading loading-spinner loading-xs"></span>
+          <span className="loading loading-spinner p-56 loading-xs"></span>
         ) : (
           <h1 className='p-56'>No Such Product Found</h1>
         )

@@ -1,27 +1,44 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useFeedback from "./useFeedback";
 
-const useFetch = ({ URL }) => {
-    const [isFetching, setFetchProgress] = useState(true);
+const useFetch = () => {
+    const [isFetching, setIsFetching] = useState(false);
     const [error, setError] = useState(null);
-    const [response, setResponse] = useState(null);
+    const {Alert} = useFeedback()
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setFetchProgress(true);
-                const { data } = await axios.get(URL);
-                setResponse(data);
-                setFetchProgress(false);
-            } catch (err) {
-                setError(err);
-                console.error(err);
-            }
+    const axiosInstance = axios.create({
+        baseURL : 'http://localhost:3000/', 
+        timeout: 10000, 
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    const makeRequest = async (method, endpoint, data = null, options = {}) => {
+        setIsFetching(true);
+        setError(null);
+
+        const config = {
+            method,
+            url: endpoint,
+            data,
+            ...options, 
         };
-        URL ? fetchData() : console.log('Wrong URL', URL)
-    }, [URL]);
 
-    return { isFetching, error, response };
+        try {
+            const res = await axiosInstance(config);
+            return res.data;
+        } catch (err) {
+            setError(true)
+            Alert('Error in Loading Data' , 'alert-error')
+            throw err; 
+        } finally {
+            setIsFetching(false);
+        }
+    };
+
+    return { makeRequest, isFetching, error };
 };
 
 export default useFetch;

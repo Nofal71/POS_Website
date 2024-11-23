@@ -1,7 +1,12 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router'
 
 const ProductCard_2 = ({ product }) => {
+    const navigate = useNavigate()
+    const handleProductDisplay = () => {
+        navigate('/product', { state: { productId: product.id } })
+    }
     return (
         <>
             {
@@ -10,10 +15,11 @@ const ProductCard_2 = ({ product }) => {
                         initial={{ opacity: 0, scale: 0.8 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         transition={{ duration: .5, ease: 'easeIn' }}
+                        onClick={handleProductDisplay}
                         className="card bg-base-100 w-1/5">
                         <figure className="w-full">
                             {
-                                product.img.includes('.jpg' || '.png' || '.jpeg') ? (
+                                product.img ? (
                                     <motion.img
                                         whileHover={{ scale: 1.08, cursor: 'pointer' }}
                                         transition={{ duration: .5, ease: 'easeIn' }}
