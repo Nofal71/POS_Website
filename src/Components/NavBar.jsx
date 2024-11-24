@@ -2,11 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { ShoppingCart } from "@mui/icons-material";
 import { Badge } from "@mui/material";
 import { motion } from "framer-motion";
+import { useNavigate } from 'react-router';
+import useFeedback from '../Hooks/useFeedback';
 
 
 const Navbar = () => {
 
     const [isScrolled, setIsScrolled] = useState(false);
+    const { cartCount } = useFeedback()
+    const navigate = useNavigate()
 
     const handleScroll = () => {
         if (window.scrollY > 0) {
@@ -22,6 +26,7 @@ const Navbar = () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, []);
+
 
     return (
         <>
@@ -84,8 +89,10 @@ const Navbar = () => {
                     </ul>
                 </div>
                 <div className="mx-auto flex gap-7">
-                    <Badge badgeContent={1}>
-                        <ShoppingCart />
+                    <Badge badgeContent={cartCount}>
+                        <ShoppingCart onClick={() => {
+                            navigate('/cart')
+                        }} />
                     </Badge>
                     <label className="swap swap-rotate">
                         <input type="checkbox" className="theme-controller" value="luxury" />

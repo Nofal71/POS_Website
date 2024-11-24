@@ -8,7 +8,7 @@ import { CurrentUserProvider } from '../Context/CurrentUserContext';
 
 const ProductDisplay = () => {
     const { makeRequest, isFetching } = useFetch();
-    const { Alert } = useFeedback();
+    const { Alert, setCartCount } = useFeedback();
     const [product, setProduct] = useState(null);
     const location = useLocation();
     const productID = location.state.productId;
@@ -19,9 +19,10 @@ const ProductDisplay = () => {
     const handleAddToCart = async () => {
         try {
             if (CurrentUser.id) {
-                let cart ;
+                let cart;
                 try {
-                   cart = await makeRequest('GET', `carts/${CurrentUser.id}`);
+                    cart = await makeRequest('GET', `carts/${CurrentUser.id}`);
+                    setCartCount(cart?.products?.length)
                 } catch (error) {
                     cart = false
                 }
@@ -31,6 +32,7 @@ const ProductDisplay = () => {
                         products: [productID]
                     });
                     Alert('Cart Created and Item Added', 'alert-success');
+                    setCartCount('1')
                 } else {
                     const updatedProducts = cart.products.includes(productID)
                         ? cart.products
@@ -126,7 +128,7 @@ const ProductDisplay = () => {
                             </div>
                             <div className="flex space-x-4">
                                 <button onClick={handleAddToCart} className="btn btn-primary">
-                                    Add to Cart
+                                    {isFetching ? 'Loading...' : 'Add to Cart'}
                                 </button>
                                 <button onClick={handleBuyNow} className="btn btn-secondary">
                                     Buy Now

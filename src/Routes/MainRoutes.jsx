@@ -6,6 +6,7 @@ import Search from '../Sections/SearchPage/Search';
 import Navbar from '../Components/NavBar';
 import Footer from '../Components/Footer';
 import ProductDisplay from '../Components/ProductDisplay';
+import Cart from '../Sections/Cart/Cart';
 
 const RouterSetup = () => {
 
@@ -17,6 +18,7 @@ const RouterSetup = () => {
           <Route path="/" element={<DefaultRoute />} />
           <Route path="/search" element={<Search />} />
           <Route path="/product" element={<ProductDisplay />} />
+          <Route path="/cart" element={<Cart />} />
         </Routes>
       </div>
       <Footer />
