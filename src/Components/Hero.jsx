@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Hero = () => {
+const Hero = ({ backgroundImage , heroText }) => {
     return (
         <div className="relative">
             <div className="overflow-hidden -z-50 absolute w-full h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh]">
                 <img
-                    src='https://img.freepik.com/free-photo/paper-bags-different-colors-blue-background-top-view_169016-43755.jpg'
+                    src={backgroundImage}
                     alt={'image'}
                     className="object-cover w-full h-full"
                     loading='lazy'
@@ -20,11 +20,11 @@ const Hero = () => {
                 <div className="flex flex-col gap-6">
                     <motion.h1
                         initial={{ overflow: 'hidden', width: '0', opacity: 0 }}
-                        animate={{ width: 'auto', opacity: 1}}
+                        animate={{ width: 'auto', opacity: 1 }}
                         transition={{ delay: 1, duration: 3, ease: 'easeInOut' }}
-                        className="text-3xl text-textPrimary sm:text-4xl lg:text-5xl text-nowrap font-bold text-animation"
+                        className="text-3xl text-textPrimary sm:text-4xl line-clamp-2 max-w-3xl lg:text-5xl font-bold text-animation"
                     >
-                        ELEVATE YOUR SPACE <br /> WITH OUR FURNITURE
+                        {heroText}
                     </motion.h1>
 
                     <p className="text-sm sm:text-base text-gray-700">

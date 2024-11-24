@@ -1,12 +1,3 @@
 import MainRoutes from "./Routes/MainRoutes"
-
-function App() {
-
-  return (
-    <>
-      <MainRoutes />
-    </>
-  )
-}
-
+const App = () => <MainRoutes />
 export default App

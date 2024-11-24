@@ -3319,6 +3319,11 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
 
+nest-deep@^1.3.2:
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/nest-deep/-/nest-deep-1.3.4.tgz#4ea62cc47e6c5defa5129a74eb7363c9fa40a0be"
+  integrity sha512-AnDjhcNu1RosPKEBw3EQ52eF6eO13CZZXO0+ry7ygPbKHtQfrpcObJj+mh2oQ1KRUvksPgbj7Qlod01SnpDETw==
+
 node-fetch@2.6.7:
   version "2.6.7"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
@@ -3752,6 +3757,11 @@ react-dom@^18.3.1:
   dependencies:
     loose-envify "^1.1.0"
     scheduler "^0.23.2"
+
+react-hook-form@^7.53.2:
+  version "7.53.2"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.53.2.tgz#6fa37ae27330af81089baadd7f322cc987b8e2ac"
+  integrity sha512-YVel6fW5sOeedd1524pltpHX+jgU2u3DSDtXEaBORNdqiNrsX/nUI/iGXONegttg0mJVnfrIkiV0cmTU6Oo2xw==
 
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
@@ -4543,6 +4553,13 @@ uri-js@^4.2.2:
   integrity sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==
   dependencies:
     punycode "^2.1.0"
+
+use-form@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/use-form/-/use-form-2.0.3.tgz#e448127f5a0bc7bdadb48ae9285874f9c4c82746"
+  integrity sha512-nNO5F3Ejs3B+7f0D/P50eBDwuoZQ7ZpNIgBEKsdzB/tN1Bt2oUrDYt4oEkRMRUYPOKq97CNjdMny7kmIVwZYsw==
+  dependencies:
+    nest-deep "^1.3.2"
 
 util-deprecate@^1.0.1, util-deprecate@^1.0.2:
   version "1.0.2"

@@ -28,12 +28,12 @@ const Navbar = () => {
             <motion.div
                 initial={{ y: -400 }}
                 animate={{ y: 0 }}
-                transition={{ duration: 1  }}
+                transition={{ duration: 1 }}
                 className={`sticky navbar top-0 right-0 left-0 p-5 ${isScrolled ? 'bg-theme-light' : 'bg-sky-400'} z-40 text-black items-center`}>
                 <div className="navbar-start">
 
                     <div className="dropdown sm:hidden">
-                        <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+                        <div role="button" className="btn btn-ghost btn-circle">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="h-5 w-5"
@@ -46,10 +46,10 @@ const Navbar = () => {
                                     strokeWidth="2"
                                     d="M4 6h16M4 12h16M4 18h7" />
                             </svg>
-                            <div class="dropdown dropdown-bottom">
+                            <div tabIndex={0} className="dropdown dropdown-bottom">
                                 <ul
-                                    tabindex="0"
-                                    class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
+                                    tabIndex={0}
+                                    className="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
                                     <li><a>Item 1</a></li>
                                     <li><a>Item 2</a></li>
                                 </ul>
@@ -64,11 +64,11 @@ const Navbar = () => {
                         </h1>
                     </div>
                     <div className="px-auto hidden sm:flex justify-center">
-                        <div class="dropdown dropdown-bottom">
-                            <div tabindex="0" role="button" class="btn btn-ghost rounded-btn">Shop</div>
+                        <div className="dropdown dropdown-bottom">
+                            <div tabIndex="0" role="button" className="btn btn-ghost rounded-btn">Shop</div>
                             <ul
-                                tabindex="0"
-                                class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
+                                tabIndex={0}
+                                className="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
                                 <li><a>Item 1</a></li>
                                 <li><a>Item 2</a></li>
                             </ul>
