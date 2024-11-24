@@ -1,16 +1,56 @@
-import React  from "react";
+import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
+import useFetch from "../../Hooks/useFetch";
+import useFeedback from "../../Hooks/useFeedback";
+import { CurrentUserProvider } from "../../Context/CurrentUserContext";
 
 const Register = ({ open, setOpen, setIsLoggingIn }) => {
+
+
+    const { setCurrentUser } = useContext(CurrentUserProvider)
+    const { Alert } = useFeedback()
+    const { makeRequest } = useFetch()
+
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        setError,
+        formState: { errors, isSubmitting },
     } = useForm();
 
-    const onSubmit = (data) => {
-        console.log("Sign In Data: ", data);
-        setOpen(false)
+    const setCurrent = async (data) => {
+        try {
+            const [emailResponse, passwordResponse] = await Promise.all([
+                makeRequest('GET', `user?email=${data.email}`),
+                makeRequest('GET', `user?password=${data.password}`)
+            ]);
+            if (emailResponse.length && passwordResponse.length) {
+                setCurrentUser(emailResponse[0])
+                setOpen(false)
+            }
+        } catch (error) {
+            Alert('Sign Up Failed', 'alert-error');
+        }
+    }
+
+    const onSubmit = async (data) => {
+        try {
+            const userData = {
+                ...data,
+                role: 'customer',
+                status: "active",
+            }
+            const emailValididate = await makeRequest('GET', `user?email=${data.email}`)
+            if (emailValididate.length > 0) {
+                setError('email', { message: 'Email already Taken' })
+            } else {
+                await makeRequest('POST', 'user', userData)
+                await setCurrent(data)
+                Alert('Sign Up Success', 'alert-success');
+            }
+        } catch (error) {
+            Alert('Signup Failed', 'alert-error');
+        }
     };
 
     return (
@@ -32,6 +72,38 @@ const Register = ({ open, setOpen, setIsLoggingIn }) => {
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
                                 <div>
+                                    <label htmlFor="name" className="block text-sm font-medium">
+                                        Name
+                                    </label>
+                                    <input
+                                        placeholder="Enter your Name"
+                                        className="input input-bordered w-full"
+                                        {...register("name", { required: "Name is required" })}
+                                    />
+                                    {errors.name && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors.name.message}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label htmlFor="username" className="block text-sm font-medium">
+                                        Username
+                                    </label>
+                                    <input
+                                        placeholder="username"
+                                        className="input input-bordered w-full"
+                                        {...register("username", { required: "username is required" })}
+                                    />
+                                    {errors.username && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors.username.message}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div>
                                     <label htmlFor="email" className="block text-sm font-medium">
                                         Email
                                     </label>
@@ -45,6 +117,28 @@ const Register = ({ open, setOpen, setIsLoggingIn }) => {
                                     {errors.email && (
                                         <p className="text-red-500 text-xs mt-1">
                                             {errors.email.message}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium">
+                                        Contact Number
+                                    </label>
+                                    <input
+                                        placeholder="Enter your Phone / Landline"
+                                        className="input input-bordered w-full"
+                                        {...register("contact", {
+                                            required: "Contact is required",
+                                            pattern: {
+                                                value: /^[0-9]+$/,
+                                                message: "Please enter a valid contact number",
+                                            }
+                                        })}
+                                    />
+                                    {errors.contact && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors.contact.message}
                                         </p>
                                     )}
                                 </div>
@@ -66,31 +160,15 @@ const Register = ({ open, setOpen, setIsLoggingIn }) => {
                                         </p>
                                     )}
                                 </div>
-                                <div>
-                                    <label htmlFor="password" className="block text-sm font-medium">
-                                        Confirm Password
-                                    </label>
-                                    <input
-                                        id="password"
-                                        type="password"
-                                        placeholder="Enter your password"
-                                        className="input input-bordered w-full"
-                                        {...register("confirmPassword", {
-                                            required: "Confirm Password is required",
-                                            validate: (value) =>
-                                                value === password || "Passwords do not match",
-                                        })}
-                                    />
-                                    {errors.confirmPassword && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.confirmPassword.message}
-                                        </p>
-                                    )}
-                                </div>
 
+                                {errors.root && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.root.message}
+                                    </p>
+                                )}
 
                                 <button className="btn btn-primary w-full" type="submit">
-                                    Sign Up
+                                    {isSubmitting ? 'Loading.... ' : 'Sign Up'}
                                 </button>
                             </form>
                             <div className="text-center mt-4 text-sm">
@@ -102,7 +180,7 @@ const Register = ({ open, setOpen, setIsLoggingIn }) => {
                                         setOpen(false)
                                     }}
                                 >
-                                    Login
+                                    Log In
                                 </button>
                             </div>
                         </div>

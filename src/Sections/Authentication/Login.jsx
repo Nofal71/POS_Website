@@ -1,17 +1,40 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
+import { CurrentUserProvider } from "../../Context/CurrentUserContext";
+import useFetch from "../../Hooks/useFetch";
+import useFeedback from "../../Hooks/useFeedback";
 
 const Login = ({ open, setOpen, setNewUser }) => {
+
+    const { setCurrentUser } = useContext(CurrentUserProvider)
+    const { Alert } = useFeedback()
+    const { makeRequest } = useFetch()
+
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        setError,
+        formState: { errors , isSubmitting },
     } = useForm();
 
-    const onSubmit = (data) => {
-        console.log("Sign In Data: ", data);
-        setOpen(false)
+    const onSubmit = async (data) => {
+        try {
+            const [emailResponse, passwordResponse] = await Promise.all([
+                makeRequest('GET', `user?email=${data.email}`),
+                makeRequest('GET', `user?password=${data.password}`)
+            ]);
+            if (emailResponse.length && passwordResponse.length) {
+                Alert('Login Success', 'alert-success');
+                setCurrentUser(emailResponse[0])
+                setOpen(false)
+            } else {
+                setError('root', { 'message': 'Invalid email or password' })
+                throw new Error("Invalid email or password");
+            }
+        } catch (error) {
+            Alert('Login Failed', 'alert-error');
+        }
     };
 
     return (
@@ -20,7 +43,7 @@ const Login = ({ open, setOpen, setNewUser }) => {
                 open && (
                     <div className="modal modal-open">
                         <motion.div
-                            initial={{ y: -400, opacity: 0 , position:'relative' }}
+                            initial={{ y: -400, opacity: 0, position: 'relative' }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ duration: .5 }}
                             className="modal-box">
@@ -71,10 +94,14 @@ const Login = ({ open, setOpen, setNewUser }) => {
                                         </p>
                                     )}
                                 </div>
-
+                                {errors.root && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.root.message}
+                                    </p>
+                                )}
 
                                 <button className="btn btn-primary w-full" type="submit">
-                                    Sign In
+                                {isSubmitting ? 'Loading.... ' : 'Sign In'}
                                 </button>
                             </form>
                             <div className="text-center mt-4 text-sm">

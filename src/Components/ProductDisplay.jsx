@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import useFetch from '../Hooks/useFetch';
 import useFeedback from '../Hooks/useFeedback';
 import Login from '../Sections/Authentication/Login';
 import Register from '../Sections/Authentication/Register';
+import { CurrentUserProvider } from '../Context/CurrentUserContext';
 
 const ProductDisplay = () => {
     const { makeRequest, isFetching } = useFetch();
@@ -13,16 +14,33 @@ const ProductDisplay = () => {
     const productID = location.state.productId;
     const [LoggingIn, setIsLoggingIn] = useState(false)
     const [isNewUser, setNewUser] = useState(false)
+    const { CurrentUser } = useContext(CurrentUserProvider)
 
     const handleAddToCart = async () => {
-        setIsLoggingIn(true)
         try {
-            const cart = await makeRequest('GET', '/carts/8d70');
-            const updatedProducts = cart.products.includes(productID)
-                ? cart.products
-                : [...cart.products, productID];
-            await makeRequest('PATCH', '/carts/8d70', { products: updatedProducts });
-            Alert('Product added to cart successfully', 'alert-success');
+            if (CurrentUser.id) {
+                let cart ;
+                try {
+                   cart = await makeRequest('GET', `carts/${CurrentUser.id}`);
+                } catch (error) {
+                    cart = false
+                }
+                if (!cart) {
+                    cart = await makeRequest('POST', '/carts', {
+                        id: CurrentUser.id,
+                        products: [productID]
+                    });
+                    Alert('Cart Created and Item Added', 'alert-success');
+                } else {
+                    const updatedProducts = cart.products.includes(productID)
+                        ? cart.products
+                        : [...cart.products, productID];
+                    await makeRequest('PATCH', `/carts/${CurrentUser.id}`, { products: updatedProducts });
+                    Alert('Item Added to Cart Successfully', 'alert-success');
+                }
+            } else {
+                setIsLoggingIn(true);
+            }
         } catch (error) {
             console.error(error, 'error in cart');
             Alert('Failed to add product to cart', 'alert-error');
@@ -30,7 +48,16 @@ const ProductDisplay = () => {
     };
 
     const handleBuyNow = async () => {
-        setIsLoggingIn(true)
+        try {
+            if (CurrentUser.id) {
+                Alert('We Are not available right now', 'alert-info');
+            } else {
+                setIsLoggingIn(true)
+            }
+        } catch (error) {
+            console.error(error, 'error in cart');
+            Alert('Failed to add product to cart', 'alert-error');
+        }
     }
 
     useEffect(() => {
