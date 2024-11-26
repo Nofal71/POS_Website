@@ -2,7 +2,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router'
 
-const ProductCard_2 = ({ product }) => {
+const ProductCard_2 = ({ product, actions }) => {
     const navigate = useNavigate()
     const handleProductDisplay = () => {
         navigate('/product', { state: { productId: product.id } })
@@ -38,11 +38,27 @@ const ProductCard_2 = ({ product }) => {
                             <p className="text-sm text-nowrap overflow-hidden text-ellipsis whitespace-nowrap">
                                 {product.description}
                             </p>
+                            {
+                                actions && actions.length > 0 && (
+                                    <div className="flex flex-row justify-start gap-2 mt-2">
+                                        {actions.map((action, index) => (
+                                            <button
+                                                key={index}
+                                                className={action.className}
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // Prevent triggering `handleProductDisplay`
+                                                    action.handler();
+                                                }}>
+                                                {action.lable}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )
+                            }
                         </div>
                     </motion.div>
                 )
             }
-
         </>
     )
 }

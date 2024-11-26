@@ -14,8 +14,8 @@ const Modal = () => {
         }
     }, [openModal]);
 
-    const handleClose = (action) => {
-        typeof action === 'function' && action()
+    const handleClose = async (action) => {
+        typeof action === 'function' && await action()
         document.getElementById("my_modal_1").close()
         setModal()
     }

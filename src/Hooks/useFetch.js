@@ -5,11 +5,11 @@ import useFeedback from "./useFeedback";
 const useFetch = () => {
     const [isFetching, setIsFetching] = useState(false);
     const [error, setError] = useState(null);
-    const {Alert} = useFeedback()
+    const { Alert } = useFeedback()
 
     const axiosInstance = axios.create({
-        baseURL : 'http://localhost:3000/', 
-        timeout: 10000, 
+        baseURL: 'http://localhost:3000/',
+        timeout: 10000,
         headers: {
             "Content-Type": "application/json",
         },
@@ -23,16 +23,19 @@ const useFetch = () => {
             method,
             url: endpoint,
             data,
-            ...options, 
+            ...options,
         };
 
         try {
             const res = await axiosInstance(config);
-            return res.data;
+            const delayedResponse = new Promise((resolve) => {
+                setTimeout(() => resolve(res.data), 3000);
+            });
+            return delayedResponse;
         } catch (err) {
             setError(true)
-            Alert('Error in Loading Data' , 'alert-error')
-            throw err; 
+            Alert('Error in Loading Data', 'alert-error')
+            throw err;
         } finally {
             setIsFetching(false);
         }

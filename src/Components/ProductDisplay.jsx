@@ -18,49 +18,89 @@ const ProductDisplay = () => {
 
     const handleAddToCart = async () => {
         try {
-            if (CurrentUser.id) {
-                let cart;
-                try {
-                    cart = await makeRequest('GET', `carts/${CurrentUser.id}`);
-                    setCartCount(cart?.products?.length)
-                } catch (error) {
-                    cart = false
-                }
-                if (!cart) {
-                    cart = await makeRequest('POST', '/carts', {
-                        id: CurrentUser.id,
-                        products: [productID]
-                    });
-                    Alert('Cart Created and Item Added', 'alert-success');
-                    setCartCount('1')
-                } else {
-                    const updatedProducts = cart.products.includes(productID)
-                        ? cart.products
-                        : [...cart.products, productID];
-                    await makeRequest('PATCH', `/carts/${CurrentUser.id}`, { products: updatedProducts });
-                    Alert('Item Added to Cart Successfully', 'alert-success');
-                }
-            } else {
+            if (!CurrentUser.id) {
                 setIsLoggingIn(true);
+                return;
+            }
+            let cart;
+            try {
+                cart = await makeRequest('GET', `carts/${CurrentUser.id}`);
+            } catch (error) {
+                console.warn('Cart not found, creating a new cart.');
+            }
+
+            if (!cart) {
+                cart = await makeRequest('POST', '/carts', {
+                    id: CurrentUser.id,
+                    products: [productID],
+                });
+
+                setCartCount(1);
+                Alert('Cart created and item added successfully!', 'alert-success');
+            } else {
+                if (cart?.products?.includes(productID)) {
+                    Alert('Already in Cart', 'alert-warning')
+                    return
+                }
+                const updatedProducts = [...cart.products, productID];
+                await makeRequest('PATCH', `/carts/${CurrentUser.id}`, { products: updatedProducts });
+                setCartCount(updatedProducts.length);
+                Alert('Item added to cart successfully!', 'alert-success');
             }
         } catch (error) {
-            console.error(error, 'error in cart');
-            Alert('Failed to add product to cart', 'alert-error');
+            console.error('Error handling cart:', error);
+            Alert('Failed to add product to cart. Please try again later.', 'alert-error');
         }
     };
 
+
     const handleBuyNow = async () => {
         try {
-            if (CurrentUser.id) {
-                Alert('We Are not available right now', 'alert-info');
+            if (!CurrentUser?.id) {
+                setIsLoggingIn(true);
+                return;
+            }
+    
+            let order;
+            try {
+                order = await makeRequest('GET', `orders/${CurrentUser.id}`);
+            } catch {
+                console.warn('No existing order found, creating a new one.');
+            }
+    
+            const newOrderDetail = {
+                status: "pending",
+                product: {
+                    id: productID,
+                    quantity: 1
+                }
+            };
+    
+            if (!order) {
+                await makeRequest('POST', '/orders', {
+                    id: CurrentUser.id,
+                    details: [newOrderDetail]
+                });
+                Alert('Order placed successfully!', 'alert-success');
             } else {
-                setIsLoggingIn(true)
+                const existingProduct = order.details.find(detail => detail.product.id === productID);
+                if (existingProduct) {
+                    Alert('Order already placed for this product.', 'alert-warning');
+                    return;
+                }
+    
+                const updatedDetails = [...order.details, newOrderDetail];
+                await makeRequest('PATCH', `orders/${CurrentUser.id}`, { details: updatedDetails });
+                Alert('Order placed successfully!', 'alert-success');
             }
         } catch (error) {
-            console.error(error, 'error in cart');
-            Alert('Failed to add product to cart', 'alert-error');
+            console.error('Error handling order:', error);
+            Alert('Failed to place order. Please try again later.', 'alert-error');
         }
-    }
+    };
+    
+
+
 
     useEffect(() => {
         window.scrollTo({ top: 100, behavior: 'instant' })

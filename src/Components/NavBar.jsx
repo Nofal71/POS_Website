@@ -4,6 +4,7 @@ import { Badge } from "@mui/material";
 import { motion } from "framer-motion";
 import { useNavigate } from 'react-router';
 import useFeedback from '../Hooks/useFeedback';
+import useLocalStorage from '../Hooks/useLocalStorage';
 
 
 const Navbar = () => {
@@ -11,6 +12,18 @@ const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const { cartCount } = useFeedback()
     const navigate = useNavigate()
+
+    const [theme, setTheme] = useLocalStorage('theme', 'luxury');
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'luxury' ? 'light' : 'luxury';
+        setTheme(newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+    };
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+    }, [theme]);
 
     const handleScroll = () => {
         if (window.scrollY > 0) {
@@ -35,7 +48,7 @@ const Navbar = () => {
                 animate={{ y: 0 }}
                 transition={{ duration: 1 }}
                 className={`sticky navbar top-0 right-0 left-0 p-5 ${isScrolled ? 'bg-theme-light' : 'bg-sky-400'} z-40 text-black items-center`}>
-                <div className="navbar-start">
+                <div className="navbar-start ">
 
                     <div className="dropdown sm:hidden">
                         <div role="button" className="btn btn-ghost btn-circle">
@@ -63,7 +76,7 @@ const Navbar = () => {
 
                     </div>
 
-                    <div className="px-4 flex-1 flex justify-start">
+                    <div onClick={() => navigate('/')} className="px-4 cursor-pointer flex-1 flex justify-start">
                         <h1 className="text-lg font-bold">
                             Brand Name
                         </h1>
@@ -88,14 +101,19 @@ const Navbar = () => {
                         <li className=" hover:text-gray-50">Contact</li>
                     </ul>
                 </div>
-                <div className="mx-auto flex gap-7">
+                <div className="mx-auto cursor-pointer flex gap-7">
                     <Badge badgeContent={cartCount}>
                         <ShoppingCart onClick={() => {
                             navigate('/cart')
                         }} />
                     </Badge>
                     <label className="swap swap-rotate">
-                        <input type="checkbox" className="theme-controller" value="luxury" />
+                        <input
+                            type="checkbox"
+                            className="theme-controller"
+                            onChange={toggleTheme}
+                            checked={theme === 'luxury'}
+                        />
                         <svg
                             className="swap-off h-10 w-10 fill-current"
                             xmlns="http://www.w3.org/2000/svg"
